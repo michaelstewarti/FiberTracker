@@ -20,4 +20,9 @@ public enum TipoPoste {
         this.val = val;
     }
 
+    @Override
+    public String toString(){
+        return val;
+    }
+
 }

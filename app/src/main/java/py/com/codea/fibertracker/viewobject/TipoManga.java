@@ -11,4 +11,9 @@ public enum TipoManga {
         this.val = val;
     }
 
+    @Override
+    public String toString(){
+        return val;
+    }
+
 }

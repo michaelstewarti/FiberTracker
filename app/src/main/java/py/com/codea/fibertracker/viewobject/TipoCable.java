@@ -13,4 +13,9 @@ public enum TipoCable {
         this.val = val;
     }
 
+    @Override
+    public String toString(){
+        return val;
+    }
+
 }

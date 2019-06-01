@@ -10,6 +10,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -21,6 +24,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +39,14 @@ import py.com.codea.fibertracker.viewobject.TipoPoste;
 public class MainActivity extends AppCompatActivity {
 
     private Punto punto;
+
+    EditText x;
+    EditText y;
+    Spinner tipoPoste;
+    Spinner tipoCable;
+    Spinner cantidadPelos;
+    Spinner tipoManga;
+    EditText cantidadSplitters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +64,22 @@ public class MainActivity extends AppCompatActivity {
                 addPunto();
             }
         });
+
+        // Find views
+        x = (EditText) findViewById(R.id.x);
+        y = (EditText) findViewById(R.id.y);
+        cantidadSplitters = (EditText) findViewById(R.id.cantidadSplitters);
+        tipoPoste = (Spinner) findViewById(R.id.tipoPoste);
+        tipoCable = (Spinner) findViewById(R.id.tipoCable);
+        cantidadPelos = (Spinner) findViewById(R.id.cantidadPelos);
+        tipoManga = (Spinner) findViewById(R.id.tipoManga);
+
+        // Populate spinners
+        tipoPoste.setAdapter(new ArrayAdapter<TipoPoste>(this, android.R.layout.simple_spinner_item, TipoPoste.values()));
+        tipoCable.setAdapter(new ArrayAdapter<TipoCable>(this, android.R.layout.simple_spinner_item, TipoCable.values()));
+        cantidadPelos.setAdapter(new ArrayAdapter<CantidadPelos>(this, android.R.layout.simple_spinner_item, CantidadPelos.values()));
+        tipoManga.setAdapter(new ArrayAdapter<TipoManga>(this, android.R.layout.simple_spinner_item, TipoManga.values()));
+
     }
 
     @Override
@@ -80,12 +109,13 @@ public class MainActivity extends AppCompatActivity {
         final ProgressDialog loading = ProgressDialog.show(this,"Agregando punto","Por favor espere");
 
         // Obtener punto
-        //final String name = editTextItemName.getText().toString().trim();
-        //final String brand = editTextBrand.getText().toString().trim();
-
-        punto = new Punto(1.1f,4.6f, TipoPoste.POSTE_HORMIGON_ANDE, TipoCable.COPACO, CantidadPelos._36, TipoManga.SECUNDARIA,8);
-
-
+        punto = new Punto(Float.parseFloat(x.getText().toString()),
+                Float.parseFloat(y.getText().toString()),
+                (TipoPoste) tipoPoste.getSelectedItem(),
+                (TipoCable) tipoCable.getSelectedItem(),
+                (CantidadPelos) cantidadPelos.getSelectedItem(),
+                (TipoManga) tipoManga.getSelectedItem(),
+                Integer.parseInt(cantidadSplitters.getText().toString()));
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, Config.APP_SCRIPT_URL,
                 new Response.Listener<String>() {
@@ -96,7 +126,8 @@ public class MainActivity extends AppCompatActivity {
                         //Toast.makeText(AddItem.this,response,Toast.LENGTH_LONG).show();
                         //Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                         //startActivity(intent);
-
+                        //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        //        .setAction("Action", null).show();
                     }
                 },
                 new Response.ErrorListener() {
