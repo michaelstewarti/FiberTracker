@@ -24,7 +24,16 @@ import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
+import py.com.codea.fibertracker.utils.Config;
+import py.com.codea.fibertracker.viewobject.CantidadPelos;
+import py.com.codea.fibertracker.viewobject.Punto;
+import py.com.codea.fibertracker.viewobject.TipoCable;
+import py.com.codea.fibertracker.viewobject.TipoManga;
+import py.com.codea.fibertracker.viewobject.TipoPoste;
+
 public class MainActivity extends AppCompatActivity {
+
+    private Punto punto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +46,11 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
+                addPunto();
             }
         });
-
-        addPunto();
     }
 
     @Override
@@ -71,13 +79,15 @@ public class MainActivity extends AppCompatActivity {
 
         final ProgressDialog loading = ProgressDialog.show(this,"Agregando punto","Por favor espere");
 
+        // Obtener punto
         //final String name = editTextItemName.getText().toString().trim();
         //final String brand = editTextBrand.getText().toString().trim();
 
+        punto = new Punto(1.1f,4.6f, TipoPoste.POSTE_HORMIGON_ANDE, TipoCable.COPACO, CantidadPelos._36, TipoManga.SECUNDARIA,8);
 
 
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://script.google.com/macros/s/AKfycbxMPI2nftpd4qs0G8peBABvA7q7nW7LKhSQ-P1cm8JrJptEANA/exec",
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Config.APP_SCRIPT_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -102,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
 
                 //here we pass params
                 params.put("action","addPunto");
-                params.put("x","2.5");
-                params.put("y","3.5");
-                params.put("tipoPoste","TORRE");
-                params.put("tipoCable","TIA");
-                params.put("cantidadPelos","12");
-                params.put("tipoManga","PRIMARIA");
-                params.put("cantidadSplitters","2");
+                params.put("x",punto.getX().toString());
+                params.put("y",punto.getY().toString());
+                params.put("tipoPoste",punto.getTipoPoste().val);
+                params.put("tipoCable",punto.getTipoCable().val);
+                params.put("cantidadPelos",punto.getCantidadPelos().val);
+                params.put("tipoManga",punto.getTipoManga().val);
+                params.put("cantidadSplitters",punto.getCantidadSplitters().toString());
 
                 return params;
             }
