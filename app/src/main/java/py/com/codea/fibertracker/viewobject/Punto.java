@@ -2,15 +2,15 @@ package py.com.codea.fibertracker.viewobject;
 
 public class Punto {
 
-    private Float x;
-    private Float y;
+    private Double x;
+    private Double y;
     private TipoPoste tipoPoste;
     private TipoCable tipoCable;
     private CantidadPelos cantidadPelos;
     private TipoManga tipoManga;
     private Integer cantidadSplitters;
 
-    public Punto(Float x, Float y, TipoPoste tipoPoste, TipoCable tipoCable, CantidadPelos cantidadPelos, TipoManga tipoManga, Integer cantidadSplitters) {
+    public Punto(Double x, Double y, TipoPoste tipoPoste, TipoCable tipoCable, CantidadPelos cantidadPelos, TipoManga tipoManga, Integer cantidadSplitters) {
         this.x = x;
         this.y = y;
         this.tipoPoste = tipoPoste;
@@ -20,19 +20,19 @@ public class Punto {
         this.cantidadSplitters = cantidadSplitters;
     }
 
-    public Float getX() {
+    public Double getX() {
         return x;
     }
 
-    public void setX(Float x) {
+    public void setX(Double x) {
         this.x = x;
     }
 
-    public Float getY() {
+    public Double getY() {
         return y;
     }
 
-    public void setY(Float y) {
+    public void setY(Double y) {
         this.y = y;
     }
 

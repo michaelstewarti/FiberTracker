@@ -1,10 +1,16 @@
 package py.com.codea.fibertracker;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -40,8 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Punto punto;
 
-    EditText x;
-    EditText y;
     Spinner tipoPoste;
     Spinner tipoCable;
     Spinner cantidadPelos;
@@ -59,15 +63,11 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
                 addPunto();
             }
         });
 
         // Find views
-        x = (EditText) findViewById(R.id.x);
-        y = (EditText) findViewById(R.id.y);
         cantidadSplitters = (EditText) findViewById(R.id.cantidadSplitters);
         tipoPoste = (Spinner) findViewById(R.id.tipoPoste);
         tipoCable = (Spinner) findViewById(R.id.tipoCable);
@@ -108,9 +108,22 @@ public class MainActivity extends AppCompatActivity {
 
         final ProgressDialog loading = ProgressDialog.show(this,"Agregando punto","Por favor espere");
 
-        // Obtener punto
-        punto = new Punto(Float.parseFloat(x.getText().toString()),
-                Float.parseFloat(y.getText().toString()),
+        // Obtener latitud y longitud decimales
+        double longitude = 0D;
+        double latitude = 0D;
+        try {
+            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+
+        } catch(SecurityException e) {
+            Toast.makeText(this,"Debe dar a la app permiso al GPS",Toast.LENGTH_LONG).show();
+        }
+
+        // Crear punto
+        punto = new Punto(latitude,
+                longitude,
                 (TipoPoste) tipoPoste.getSelectedItem(),
                 (TipoCable) tipoCable.getSelectedItem(),
                 (CantidadPelos) cantidadPelos.getSelectedItem(),
@@ -123,11 +136,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(String response) {
 
                         loading.dismiss();
-                        //Toast.makeText(AddItem.this,response,Toast.LENGTH_LONG).show();
-                        //Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                        //startActivity(intent);
-                        //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        //        .setAction("Action", null).show();
                     }
                 },
                 new Response.ErrorListener() {
@@ -141,7 +149,8 @@ public class MainActivity extends AppCompatActivity {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
 
-                //here we pass params
+                // Parametros sobre el punto pasados por HTTP request
+                // Seran usados por el script del google sheet
                 params.put("action","addPunto");
                 params.put("x",punto.getX().toString());
                 params.put("y",punto.getY().toString());
@@ -155,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        int socketTimeOut = 50000;// u can change this .. here it is 50 seconds
+        int socketTimeOut = 50000;
 
         RetryPolicy retryPolicy = new DefaultRetryPolicy(socketTimeOut, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         stringRequest.setRetryPolicy(retryPolicy);
