@@ -4,7 +4,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -42,7 +44,7 @@ import py.com.codea.fibertracker.viewobject.TipoCable;
 import py.com.codea.fibertracker.viewobject.TipoManga;
 import py.com.codea.fibertracker.viewobject.TipoPoste;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationListener {
 
     private Punto punto;
 
@@ -51,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
     Spinner cantidadPelos;
     Spinner tipoManga;
     EditText cantidadSplitters;
+
+    double longitude = 0D;
+    double latitude = 0D;
+
+    ProgressDialog loading = null;
+    LocationManager lm = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,20 +114,93 @@ public class MainActivity extends AppCompatActivity {
 
     private void   addPunto() {
 
-        final ProgressDialog loading = ProgressDialog.show(this,"Agregando punto","Por favor espere");
+        loading = ProgressDialog.show(this,"Agregando punto","Por favor espere");
 
         // Obtener latitud y longitud decimales
-        double longitude = 0D;
-        double latitude = 0D;
         try {
-            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
             Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
+
+            if (location != null) {
+                longitude = location.getLongitude();
+                latitude = location.getLatitude();
+
+                // Crear punto
+                punto = new Punto(latitude,
+                        longitude,
+                        (TipoPoste) tipoPoste.getSelectedItem(),
+                        (TipoCable) tipoCable.getSelectedItem(),
+                        (CantidadPelos) cantidadPelos.getSelectedItem(),
+                        (TipoManga) tipoManga.getSelectedItem(),
+                        Integer.parseInt(cantidadSplitters.getText().toString()));
+
+                StringRequest stringRequest = new StringRequest(Request.Method.POST, Config.APP_SCRIPT_URL,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+
+                                loading.dismiss();
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                            }
+                        }
+                ) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<>();
+
+                        // Parametros sobre el punto pasados por HTTP request
+                        // Seran usados por el script del google sheet
+                        params.put("action","addPunto");
+                        params.put("x",punto.getX().toString());
+                        params.put("y",punto.getY().toString());
+                        params.put("tipoPoste",punto.getTipoPoste().val);
+                        params.put("tipoCable",punto.getTipoCable().val);
+                        params.put("cantidadPelos",punto.getCantidadPelos().val);
+                        params.put("tipoManga",punto.getTipoManga().val);
+                        params.put("cantidadSplitters",punto.getCantidadSplitters().toString());
+
+                        return params;
+                    }
+                };
+
+                int socketTimeOut = 50000;
+
+                RetryPolicy retryPolicy = new DefaultRetryPolicy(socketTimeOut, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+                stringRequest.setRetryPolicy(retryPolicy);
+
+                RequestQueue queue = Volley.newRequestQueue(this);
+
+                queue.add(stringRequest);
+
+            } else {
+                lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                Criteria criteria = new Criteria();
+                String bestProvider = String.valueOf(lm.getBestProvider(criteria, true)).toString();
+                lm.requestLocationUpdates(bestProvider, 1000, 0, this);
+            }
+
+
 
         } catch(SecurityException e) {
             Toast.makeText(this,"Debe dar a la app permiso al GPS",Toast.LENGTH_LONG).show();
         }
+
+
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        lm.removeUpdates(this);
+
+        longitude = location.getLongitude();
+        latitude = location.getLatitude();
+
 
         // Crear punto
         punto = new Punto(latitude,
@@ -172,8 +253,14 @@ public class MainActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
 
         queue.add(stringRequest);
-
-
     }
 
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+    @Override
+    public void onProviderEnabled(String provider) {}
+
+    @Override
+    public void onProviderDisabled(String provider) {}
 }
