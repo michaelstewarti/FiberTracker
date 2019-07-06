@@ -1,9 +1,9 @@
 package py.com.codea.fibertracker.viewobject;
 
 public enum TipoManga {
-
-    PRIMARIA("PRIMARIA"),
-    SECUNDARIA("SECUNDARIA");
+    HINT("Seleccionar Tipo de Manga"),
+    PRIMARIA("Primaria"),
+    SECUNDARIA("Secundaria");
 
     public String val;
 

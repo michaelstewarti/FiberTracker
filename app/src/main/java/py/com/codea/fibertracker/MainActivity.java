@@ -2,17 +2,12 @@ package py.com.codea.fibertracker;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -32,8 +27,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +36,7 @@ import py.com.codea.fibertracker.viewobject.Punto;
 import py.com.codea.fibertracker.viewobject.TipoCable;
 import py.com.codea.fibertracker.viewobject.TipoManga;
 import py.com.codea.fibertracker.viewobject.TipoPoste;
+import py.com.codea.fibertracker.adapter.HintArrayAdapter;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
@@ -83,10 +77,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         tipoManga = (Spinner) findViewById(R.id.tipoManga);
 
         // Populate spinners
-        tipoPoste.setAdapter(new ArrayAdapter<TipoPoste>(this, android.R.layout.simple_spinner_item, TipoPoste.values()));
-        tipoCable.setAdapter(new ArrayAdapter<TipoCable>(this, android.R.layout.simple_spinner_item, TipoCable.values()));
-        cantidadPelos.setAdapter(new ArrayAdapter<CantidadPelos>(this, android.R.layout.simple_spinner_item, CantidadPelos.values()));
-        tipoManga.setAdapter(new ArrayAdapter<TipoManga>(this, android.R.layout.simple_spinner_item, TipoManga.values()));
+        tipoPoste.setAdapter(new HintArrayAdapter<TipoPoste>(this, R.layout.spinner_item_selected, TipoPoste.values()));
+        tipoCable.setAdapter(new HintArrayAdapter<TipoCable>(this, R.layout.spinner_item_selected, TipoCable.values()));
+        cantidadPelos.setAdapter(new HintArrayAdapter<CantidadPelos>(this, R.layout.spinner_item_selected, CantidadPelos.values()));
+        tipoManga.setAdapter(new HintArrayAdapter<TipoManga>(this, R.layout.spinner_item_selected, TipoManga.values()));
 
     }
 
