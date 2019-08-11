@@ -2,7 +2,7 @@ package py.com.codea.fibertracker.viewobject;
 
 
 public enum TipoCable {
-    HINT("Seleccionar Tipo de Cable"),
+    HINT("Código de colores"),
     COPACO("COPACO"),
     TIA("TIA");
 

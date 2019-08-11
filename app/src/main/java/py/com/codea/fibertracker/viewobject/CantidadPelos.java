@@ -1,7 +1,7 @@
 package py.com.codea.fibertracker.viewobject;
 
 public enum CantidadPelos {
-    HINT("Seleccionar Cantidad de Pelos"),
+    HINT("Cantidad de Pelos del Cable"),
     _6("6"),
     _12("12"),
     _24("24"),
